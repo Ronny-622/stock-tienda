@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6fa">
+  <title>Inversiones Peni Solutions</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #788197;
+      --line: #e9ebf1;
+      --paper: #fff;
+      --canvas: #f5f6fa;
+      --purple: #6656e8;
+      --purple-dark: #5141d0;
+      --green: #15966a;
+      --red: #d94f5c;
+      --amber: #bd7d19;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .shell { max-width: 1440px; margin: auto; padding: 32px 42px 48px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 34px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; background: var(--purple); color: #fff; font-size: 22px; box-shadow: 0 7px 16px #6656e833; }
+    .brand-name { font-size: 18px; font-weight: 750; letter-spacing: -.5px; }
+    .brand-sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .top-right { display: flex; align-items: center; gap: 12px; }
+    .today { color: var(--muted); font-size: 13px; }
+    .user-panel { display: flex; align-items: center; gap: 10px; }
+    .role-pill { display: inline-flex; align-items: center; padding: 6px 10px; background: #f0eeff; color: var(--purple-dark); border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+    .avatar { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: #eae8ff; color: var(--purple-dark); font-weight: 700; font-size: 13px; }
+    .login-overlay { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: rgba(19, 24, 38, 0.68); backdrop-filter: blur(4px); }
+    .login-overlay[hidden] { display: none; }
+    .login-card { width: min(100%, 380px); background: white; border-radius: 18px; padding: 24px; box-shadow: 0 22px 60px rgba(0,0,0,.2); }
+    .login-card h2 { margin: 0 0 8px; font-size: 22px; letter-spacing: -.5px; }
+    .login-card p { margin: 0 0 18px; color: var(--muted); font-size: 12px; }
+    .form-stack { display: grid; gap: 12px; }
+    .login-button { width: 100%; }
+    .report-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 22px 0; }
+    .report-card { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px 16px; }
+    .report-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; font-weight: 700; }
+    .report-value { margin-top: 12px; font-size: 26px; font-weight: 750; letter-spacing: -.7px; }
+    .report-foot { margin-top: 8px; font-size: 11px; color: var(--muted); }
+    .label-muted { color: var(--muted); font-size: 11px; }
+    .hidden-when-logged { display: none; }
+    .intro .top-right { display: flex; align-items: center; }
+    @media (max-width: 760px) {
+      .report-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 430px) {
+      .report-grid { grid-template-columns: 1fr; }
+    }
+    h1 { font-size: clamp(25px, 3vw, 32px); margin: 0 0 7px; letter-spacing: -1px; }
+    .intro p { color: var(--muted); margin: 0; font-size: 14px; }
+    .button { border: 0; border-radius: 9px; padding: 11px 16px; font-size: 13px; font-weight: 650; transition: .15s ease; }
+    .button-primary { background: var(--purple); color: white; box-shadow: 0 4px 10px #6656e82a; }
+    .button-primary:hover { background: var(--purple-dark); transform: translateY(-1px); }
+    .button-light { color: #545d72; background: #f1f2f7; }
+    .button-light:hover { background: #e8e9f0; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+    .stat-card { background: var(--paper); border: 1px solid var(--line); border-radius: 13px; padding: 19px 20px; }
+    .stat-heading { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 12px; font-weight: 550; }
+    .stat-icon { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 9px; background: #f0eeff; color: var(--purple); font-size: 15px; }
+    .stat-value { margin-top: 14px; font-size: 27px; font-weight: 750; letter-spacing: -.7px; }
+    .stat-note { color: var(--muted); margin-top: 4px; font-size: 11px; }
+    .stat-note.warning { color: var(--amber); }
+    .inventory { background: var(--paper); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
+    .inventory-head { padding: 20px 22px; display: flex; justify-content: space-between; align-items: center; gap: 16px; border-bottom: 1px solid var(--line); }
+    .inventory-title { font-weight: 700; font-size: 16px; }
+    .inventory-count { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .controls { display: flex; gap: 9px; align-items: center; }
+    .search-wrap { position: relative; }
+    .search-icon { position: absolute; left: 11px; top: 10px; color: #9098a9; font-size: 14px; pointer-events: none; }
+    .search { width: 230px; padding-left: 32px !important; }
+    .field { width: 100%; padding: 10px 11px; color: var(--ink); background: white; border: 1px solid #e4e6ed; border-radius: 8px; outline: none; font-size: 13px; }
+    .field:focus { border-color: #9c92f2; box-shadow: 0 0 0 3px #6656e814; }
+    select.field { width: auto; min-width: 133px; color: #50586b; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 740px; }
+    th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .65px; color: #969daf; font-weight: 650; padding: 12px 19px; background: #fcfcfe; }
+    td { padding: 14px 19px; border-top: 1px solid #f0f1f5; font-size: 12px; }
+    tbody tr:hover { background: #fdfdff; }
+    .product { display: flex; align-items: center; gap: 11px; }
+    .product-icon { width: 36px; height: 42px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid #eaebf2; border-radius: 9px; background: #f6f5ff; font-size: 19px; }
+    .product-name { font-weight: 650; font-size: 12px; }
+    .product-meta { margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .sku { color: #737c90; font-size: 11px; }
+    .price { font-weight: 650; }
+    .stock-number { font-weight: 650; }
+    .status { display: inline-flex; gap: 5px; align-items: center; padding: 5px 8px; border-radius: 20px; font-weight: 600; font-size: 10px; white-space: nowrap; }
+    .status::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .status-ok { background: #eaf7f1; color: #13885e; }
+    .status-low { background: #fff5e3; color: #ae751e; }
+    .status-out { background: #fff0f0; color: #c14451; }
+    .actions { display: flex; gap: 6px; justify-content: flex-end; white-space: nowrap; }
+    .action { border: 1px solid #e7e8ef; background: white; color: #596176; border-radius: 6px; padding: 6px 9px; font-size: 10px; font-weight: 600; }
+    .action:hover { border-color: #c8c2fb; color: var(--purple-dark); }
+    .action.sell { border-color: #dedaff; color: var(--purple-dark); background: #f7f6ff; }
+    .action.danger { color: #b63d4a; }
+    .action:disabled { opacity: .42; cursor: not-allowed; }
+    .empty { padding: 42px 15px; color: var(--muted); text-align: center; font-size: 13px; }
+    .table-foot { padding: 13px 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+    .sales { margin-top: 22px; background: var(--paper); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
+    .sales-head { padding: 20px 22px; border-bottom: 1px solid var(--line); }
+    .sales-title { font-weight: 700; font-size: 16px; }
+    .sales-note { color: var(--muted); font-size: 11px; margin-top: 5px; }
+    .status-blocked { background: #fff0f0; color: #c14451; }
+    .status-unblocked { background: #eaf7f1; color: #13885e; }
+    .status-pending { background: #fff5e3; color: #ae751e; }
+    .overlay { position: fixed; inset: 0; z-index: 3; display: grid; place-items: center; padding: 20px; background: #18203570; }
+    .overlay[hidden] { display: none; }
+    .modal { width: min(100%, 450px); max-height: 90vh; overflow-y: auto; padding: 23px; border-radius: 15px; background: white; box-shadow: 0 20px 60px #10162a38; }
+    .modal-head { display: flex; justify-content: space-between; align-items: start; margin-bottom: 19px; }
+    .modal h2 { margin: 0; font-size: 18px; letter-spacing: -.3px; }
+    .modal-subtitle { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .close { border: 0; background: transparent; color: #8b92a3; font-size: 22px; line-height: 1; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .form-row { margin-bottom: 13px; }
+    .device-codes { display: grid; gap: 10px; }
+    .credit-fields { border-top: 1px solid var(--line); margin-top: 15px; padding-top: 15px; }
+    .credit-section-title { margin: 0 0 12px; font-size: 13px; font-weight: 700; }
+    .consent-list { display: grid; gap: 10px; margin: 14px 0; }
+    .consent { display: flex; align-items: start; gap: 9px; color: #555e72; font-size: 11px; line-height: 1.5; }
+    .consent input { flex: 0 0 auto; margin: 2px 0 0; accent-color: var(--purple); }
+    .notice.warning { color: #9c5e14; }
+    .block-result { padding: 12px; border-radius: 9px; background: #f6f7fb; font-size: 12px; }
+    .block-result p { margin: 0 0 8px; }
+    label { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 650; color: #555e72; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+    .notice { margin-top: 17px; color: #8b92a3; font-size: 10px; }
+    .toast { position: fixed; z-index: 4; left: 50%; bottom: 24px; transform: translate(-50%, 12px); opacity: 0; transition: .2s ease; background: #20283a; color: white; border-radius: 9px; padding: 11px 17px; font-size: 12px; pointer-events: none; box-shadow: 0 5px 20px #0002; }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+    @media (max-width: 760px) {
+      .shell { padding: 23px 18px 34px; }
+      .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .stat-card { padding: 15px; }
+      .intro { align-items: start; flex-direction: column; }
+      .inventory-head { align-items: start; flex-direction: column; }
+      .controls { width: 100%; }
+      .search-wrap { flex: 1; }
+      .search { width: 100%; }
+    }
+    @media (max-width: 430px) {
+      .shell { padding-inline: 13px; }
+      .today { display: none; }
+      .controls { flex-wrap: wrap; }
+      .controls select { flex: 1; }
+      .form-grid { grid-template-columns: 1fr; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="login-overlay" class="login-overlay">
+    <section class="login-card" role="dialog" aria-modal="true" aria-labelledby="login-title">
+      <h2 id="login-title">Acceso al sistema</h2>
+      <p>Inicia sesión para gestionar productos, ventas y cobros.</p>
+      <form id="login-form" class="form-stack">
+        <div>
+          <label for="login-user">Usuario</label>
+          <input id="login-user" class="field" type="text" required autocomplete="username">
+        </div>
+        <div>
+          <label for="login-password">Contraseña</label>
+          <input id="login-password" class="field" type="password" required autocomplete="current-password">
+        </div>
+        <button class="button button-primary login-button" type="submit">Entrar al panel</button>
+      </form>
+    </section>
+  </div>
+
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">▯</div>
+        <div><div class="brand-name">Inversiones Peni Solutions</div><div class="brand-sub">Gestión de tienda</div></div>
+      </div>
+      <div class="top-right">
+        <span class="today" id="today"></span>
+        <div class="user-panel">
+          <span id="session-role" class="role-pill">Administrador</span>
+          <span id="user-avatar" class="avatar" aria-label="Usuario activo">AD</span>
+          <button id="username-button" class="button button-light" type="button">Cambiar usuario</button>
+          <button id="password-button" class="button button-light" type="button">Cambiar contraseña</button>
+          <button id="logout-button" class="button button-light" type="button">Salir</button>
+        </div>
+      </div>
+    </header>
+    <section class="intro">
+      <div><h1>Panel de inventario</h1><p>Controla tus teléfonos, existencias y ventas desde un solo lugar.</p></div>
+      <div class="top-right"><button class="button button-light" id="block-button" type="button">Bloquear por código</button><button class="button button-primary" id="add-button">＋ &nbsp;Agregar producto</button></div>
+    </section>
+    <section class="stats" aria-label="Resumen del inventario">
+      <article class="stat-card"><div class="stat-heading">Productos registrados <span class="stat-icon">▤</span></div><div class="stat-value" id="product-count">0</div><div class="stat-note">Modelos en tu catálogo</div></article>
+      <article class="stat-card"><div class="stat-heading">Unidades en stock <span class="stat-icon">▣</span></div><div class="stat-value" id="unit-count">0</div><div class="stat-note">Teléfonos disponibles</div></article>
+      <article class="stat-card"><div class="stat-heading">Valor del inventario <span class="stat-icon">$</span></div><div class="stat-value" id="inventory-value">$0</div><div class="stat-note">Calculado al precio de venta</div></article>
+      <article class="stat-card"><div class="stat-heading">Stock bajo <span class="stat-icon">⌁</span></div><div class="stat-value" id="low-count">0</div><div class="stat-note warning">Productos con 5 unidades o menos</div></article>
+    </section>
+    <section class="report-grid" aria-label="Reportes de ventas">
+      <article class="report-card"><div class="report-label">Ventas hoy</div><div class="report-value" id="daily-sales">$0</div><div class="report-foot">ingresos de la jornada</div></article>
+      <article class="report-card"><div class="report-label">Créditos activos</div><div class="report-value" id="active-credit-sales">0</div><div class="report-foot">contratos pendientes</div></article>
+      <article class="report-card"><div class="report-label">Cobranza pendiente</div><div class="report-value" id="pending-collections">$0</div><div class="report-foot">saldo por cobrar</div></article>
+      <article class="report-card"><div class="report-label">Productos críticos</div><div class="report-value" id="critical-products">0</div><div class="report-foot">sin stock o bajos</div></article>
+    </section>
+    <section class="inventory">
+      <div class="inventory-head">
+        <div><div class="inventory-title">Inventario de teléfonos</div><div class="inventory-count" id="inventory-count"></div></div>
+        <div class="controls">
+          <div class="search-wrap"><span class="search-icon" aria-hidden="true">⌕</span><input id="search" class="field search" type="search" placeholder="Buscar teléfono..." aria-label="Buscar teléfono"></div>
+          <select id="brand-filter" class="field" aria-label="Filtrar por marca"><option value="">Todas las marcas</option></select>
+          <select id="stock-filter" class="field" aria-label="Filtrar por disponibilidad"><option value="">Todo el stock</option><option value="available">Disponible</option><option value="low">Stock bajo</option><option value="out">Agotado</option></select>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Producto</th><th>Código</th><th>Precio</th><th>Existencias</th><th>Estado</th><th style="text-align:right">Acciones</th></tr></thead>
+          <tbody id="product-rows"></tbody>
+        </table>
+        <div class="empty" id="empty-state" hidden>No hay productos que coincidan con la búsqueda.</div>
+      </div>
+      <div class="table-foot" id="table-foot"></div>
+    </section>
+    <section class="sales">
+      <div class="sales-head"><div class="sales-title">Ventas y equipos</div><div class="sales-note">Consulta comprobantes, imprime facturas y administra el estado de cada equipo por su código.</div></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Factura</th><th>Equipo / código</th><th>Cliente</th><th>Fecha</th><th>Total</th><th>Saldo</th><th>Estado</th><th style="text-align:right">Acciones</th></tr></thead>
+          <tbody id="sales-rows"></tbody>
+        </table>
+        <div class="empty" id="sales-empty">Aún no hay ventas registradas.</div>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="product-overlay" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title">
+      <div class="modal-head"><div><h2 id="product-modal-title">Agregar producto</h2><p class="modal-subtitle">Completa los datos del teléfono.</p></div><button class="close" type="button" data-close aria-label="Cerrar">×</button></div>
+      <form id="product-form">
+        <input id="product-id" type="hidden">
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="brand">Marca *</label>
+            <select id="brand" class="field" required>
+              <option value="">Selecciona una marca</option>
+              <optgroup label="Marcas más vendidas">
+                <option value="Apple">Apple</option>
+                <option value="Samsung">Samsung</option>
+                <option value="Xiaomi">Xiaomi</option>
+                <option value="Motorola">Motorola</option>
+                <option value="Huawei">Huawei</option>
+                <option value="OPPO">OPPO</option>
+                <option value="vivo">vivo</option>
+                <option value="Google">Google</option>
+              </optgroup>
+              <option value="other">Otra marca…</option>
+            </select>
+            <input id="custom-brand" class="field" maxlength="35" placeholder="Escribe la marca" aria-label="Escribe otra marca" hidden style="margin-top:8px">
+          </div>
+          <div class="form-row"><label for="model">Modelo *</label><input id="model" class="field" required maxlength="45" placeholder="Ej. Galaxy A55"></div>
+        </div>
+        <div class="form-row"><label for="storage">Almacenamiento</label><input id="storage" class="field" maxlength="20" placeholder="Ej. 256 GB"></div>
+        <div class="form-grid">
+          <div class="form-row"><label for="sku">Código / SKU *</label><input id="sku" class="field" required maxlength="24" placeholder="Ej. SAM-A55-256"></div>
+          <div class="form-row"><label for="price">Precio de venta *</label><input id="price" class="field" type="number" required min="0.01" step="0.01" placeholder="0.00"></div>
+        </div>
+        <div class="form-row"><label for="stock">Unidades en stock *</label><input id="stock" class="field" type="number" required min="0" step="1" placeholder="0"></div>
+        <div class="form-actions"><button class="button button-light" type="button" data-close>Cancelar</button><button class="button button-primary" type="submit">Guardar producto</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="overlay" id="sale-overlay" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="sale-modal-title">
+      <div class="modal-head"><div><h2 id="sale-modal-title">Registrar venta</h2><p class="modal-subtitle" id="sale-product-name"></p></div><button class="close" type="button" data-close aria-label="Cerrar">×</button></div>
+      <form id="sale-form">
+        <input id="sale-id" type="hidden">
+        <div class="form-row"><label for="sale-quantity">Cantidad a vender *</label><input id="sale-quantity" class="field" type="number" required min="1" step="1" value="1"></div>
+        <div class="form-row"><label for="sale-customer">Nombre completo del cliente *</label><input id="sale-customer" class="field" maxlength="80" placeholder="Nombre y apellidos"></div>
+        <div class="form-row"><label for="sale-payment-type">Forma de pago</label><select id="sale-payment-type" class="field"><option value="cash">Contado</option><option value="financed">Venta a crédito (con contrato)</option></select></div>
+        <div id="financing-fields" hidden>
+          <div class="credit-fields">
+            <h3 class="credit-section-title">Datos del cliente y del contrato</h3>
+            <div class="form-grid">
+              <div class="form-row"><label for="credit-cedula">Cédula *</label><input id="credit-cedula" class="field" required maxlength="13" pattern="[0-9]{3}-?[0-9]{7}-?[0-9]{1}" title="Ingresa una cédula dominicana válida, con guiones o sin ellos." placeholder="000-0000000-0"></div>
+              <div class="form-row"><label for="credit-phone">Teléfono del cliente *</label><input id="credit-phone" class="field" type="tel" required maxlength="20" placeholder="809-000-0000"></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-row"><label for="credit-purchase-date">Fecha de compra *</label><input id="credit-purchase-date" class="field" type="date" required></div>
+              <div class="form-row"><label for="credit-final-date">Fecha de finalización (última cuota) *</label><input id="credit-final-date" class="field" type="date" required readonly><div class="product-meta">Se calcula con la fecha de inicio y la cantidad de cuotas quincenales (cada 15 días).</div></div>
+            </div>
+            <h3 class="credit-section-title">Referencias personales (mínimo 2)</h3>
+            <div class="form-grid">
+              <div class="form-row"><label for="reference-one-name">Referencia 1 · Nombre *</label><input id="reference-one-name" class="field" required maxlength="80"></div>
+              <div class="form-row"><label for="reference-one-phone">Referencia 1 · Teléfono *</label><input id="reference-one-phone" class="field" type="tel" required maxlength="20"></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-row"><label for="reference-two-name">Referencia 2 · Nombre *</label><input id="reference-two-name" class="field" required maxlength="80"></div>
+              <div class="form-row"><label for="reference-two-phone">Referencia 2 · Teléfono *</label><input id="reference-two-phone" class="field" type="tel" required maxlength="20"></div>
+            </div>
+            <h3 class="credit-section-title">Inicial y cuotas</h3>
+            <div class="form-grid">
+              <div class="form-row"><label for="sale-down-payment">Inicial *</label><input id="sale-down-payment" class="field" type="number" required min="0" step="0.01" value="0"></div>
+              <div class="form-row"><label for="sale-installments">Número de cuotas quincenales *</label><input id="sale-installments" class="field" type="number" required min="1" max="60" step="1" value="12"></div>
+            </div>
+            <p id="financing-preview" class="notice" aria-live="polite"></p>
+            <h3 class="credit-section-title">Garantía y autorizaciones</h3>
+            <p class="notice">Garantía de 15 días por problemas de sistema. Pasados los 15 días, el equipo se revisará para identificar la avería y se notificará al cliente el diagnóstico. La garantía y cualquier reparación quedan sujetas a la evaluación del equipo.</p>
+            <div class="consent-list">
+              <label class="consent"><input id="consent-late-fee" type="checkbox" required><span>Declaro que se me informó que, a partir del primer día de atraso, se aplicará una mora del 10% del saldo de la cuota vencida por cada día calendario de atraso. El cálculo es simple, no se cobra mora sobre la mora acumulada.</span></label>
+              <label class="consent"><input id="consent-credit-check" type="checkbox" required><span>Autorizo a Inversiones Peni Solutions a revisar y registrar mis datos relacionados con esta solicitud de crédito, conforme a la normativa aplicable. Esta aplicación no consulta burós de crédito ni envía mis datos a terceros.</span></label>
+              <label class="consent"><input id="consent-device-lock" type="checkbox" required><span>Declaro que se me informó de la posible gestión de bloqueo del equipo por falta de pago, cuando sea técnicamente posible y legalmente permitido. Entiendo que esta aplicación solo registra el estado y no bloquea el teléfono ni la red.</span></label>
+            </div>
+            <p class="notice warning">Los consentimientos deben ser leídos y aceptados por el cliente antes de confirmar. Revisa las condiciones y su cumplimiento legal antes de usar este contrato.</p>
+            <p class="notice warning">La cédula y los teléfonos se guardan en este navegador sin cifrado. Usa un dispositivo privado y limita el acceso a personal autorizado.</p>
+          </div>
+        </div>
+        <div class="form-row"><label>Código de cada equipo (IMEI o serie) *</label><div id="sale-device-codes" class="device-codes"></div></div>
+        <p class="notice warning">El código debe identificar cada teléfono vendido. El bloqueo que ofrece esta página es administrativo y no bloquea el teléfono a distancia.</p>
+        <div class="form-actions"><button class="button button-light" type="button" data-close>Cancelar</button><button class="button button-primary" type="submit">Confirmar venta</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="overlay" id="payment-overlay" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="payment-modal-title">
+      <div class="modal-head"><div><h2 id="payment-modal-title">Registrar abono</h2><p class="modal-subtitle" id="payment-sale-summary"></p></div><button class="close" type="button" data-close aria-label="Cerrar">×</button></div>
+      <form id="payment-form"><input id="payment-sale-id" type="hidden"><div class="form-row"><label for="payment-amount">Monto del abono (mora y capital) *</label><input id="payment-amount" class="field" type="number" required min="0.01" step="0.01"></div><p class="notice" id="payment-breakdown"></p><div class="form-actions"><button class="button button-light" type="button" data-close>Cancelar</button><button class="button button-primary" type="submit">Guardar abono</button></div></form>
+    </section>
+  </div>
+  <div class="overlay" id="block-overlay" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="block-modal-title">
+      <div class="modal-head"><div><h2 id="block-modal-title">Bloquear equipo por código</h2><p class="modal-subtitle">Busca un equipo vendido por su IMEI o número de serie.</p></div><button class="close" type="button" data-close aria-label="Cerrar">×</button></div>
+      <form id="block-form"><div class="form-row"><label for="block-code">Código del equipo</label><input id="block-code" class="field" required maxlength="40" autocomplete="off" placeholder="IMEI o número de serie"></div><div id="block-result" aria-live="polite"></div><div class="form-actions"><button class="button button-light" type="button" data-close>Cerrar</button><button class="button button-primary" type="submit">Buscar equipo</button></div></form>
+    </section>
+  </div>
+  <div class="overlay" id="password-overlay" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="password-modal-title">
+      <div class="modal-head"><div><h2 id="password-modal-title">Cambiar contraseña</h2><p class="modal-subtitle">Después del cambio deberás iniciar sesión nuevamente.</p></div><button class="close" type="button" data-close aria-label="Cerrar">×</button></div>
+      <form id="password-form">
+        <div class="form-row"><label for="current-password">Contraseña actual</label><input id="current-password" class="field" type="password" required autocomplete="current-password"></div>
+        <div class="form-row"><label for="new-password">Nueva contraseña (mínimo 12 caracteres)</label><input id="new-password" class="field" type="password" required minlength="12" maxlength="256" autocomplete="new-password"></div>
+        <div class="form-row"><label for="confirm-password">Confirmar nueva contraseña</label><input id="confirm-password" class="field" type="password" required minlength="12" maxlength="256" autocomplete="new-password"></div>
+        <div class="form-actions"><button class="button button-light" type="button" data-close>Cancelar</button><button class="button button-primary" type="submit">Actualizar contraseña</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="overlay" id="username-overlay" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="username-modal-title">
+      <div class="modal-head"><div><h2 id="username-modal-title">Cambiar nombre de usuario</h2><p class="modal-subtitle">Confirma tu contraseña actual para guardar el cambio.</p></div><button class="close" type="button" data-close aria-label="Cerrar">×</button></div>
+      <form id="username-form">
+        <div class="form-row"><label for="new-username">Nuevo usuario</label><input id="new-username" class="field" type="text" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9._-]+" autocomplete="username"></div>
+        <div class="form-row"><label for="username-current-password">Contraseña actual</label><input id="username-current-password" class="field" type="password" required autocomplete="current-password"></div>
+        <div class="form-actions"><button class="button button-light" type="button" data-close>Cancelar</button><button class="button button-primary" type="submit">Actualizar usuario</button></div>
+      </form>
+    </section>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+    (() => {
+      const STORAGE_KEY = "movilstock-products-v1";
+      const SESSION_KEY = "movilstock-session-v1";
+      const ROLE_LABELS = {
+        admin: "Administrador",
+        vendedor: "Vendedor",
+        contabilidad: "Contabilidad"
+      };
+      const starterProducts = [
+        { id: "p1", brand: "Apple", model: "iPhone 15", storage: "128 GB", sku: "APL-IP15-128", price: 799, stock: 8 },
+        { id: "p2", brand: "Samsung", model: "Galaxy A55", storage: "256 GB", sku: "SAM-A55-256", price: 449, stock: 12 },
+        { id: "p3", brand: "Xiaomi", model: "Redmi Note 13 Pro", storage: "256 GB", sku: "XIA-RN13P-256", price: 329, stock: 4 },
+        { id: "p4", brand: "Motorola", model: "Edge 50 Fusion", storage: "256 GB", sku: "MOT-E50F-256", price: 399, stock: 7 },
+        { id: "p5", brand: "Apple", model: "iPhone 14", storage: "128 GB", sku: "APL-IP14-128", price: 649, stock: 3 },
+        { id: "p6", brand: "Samsung", model: "Galaxy S24", storage: "256 GB", sku: "SAM-S24-256", price: 899, stock: 0 }
+      ];
+      const $ = (selector) => document.querySelector(selector);
+      const rows = $("#product-rows");
+      const productOverlay = $("#product-overlay");
+      const saleOverlay = $("#sale-overlay");
+      const blockOverlay = $("#block-overlay");
+      const paymentOverlay = $("#payment-overlay");
+      const passwordOverlay = $("#password-overlay");
+      const form = $("#product-form");
+      const saleForm = $("#sale-form");
+      const paymentForm = $("#payment-form");
+      const passwordForm = $("#password-form");
+      const usernameForm = $("#username-form");
+      const usernameOverlay = $("#username-overlay");
+      const salesRows = $("#sales-rows");
+      const loginForm = $("#login-form");
+      const loginOverlay = $("#login-overlay");
+      let products = [];
+      let sales = [];
+      let toastTimer;
+
+      function getCurrentSession() {
+        try {
+          const saved = localStorage.getItem(SESSION_KEY);
+          return saved ? JSON.parse(saved) : null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function setCurrentSession(user, token) {
+        if (!user || !ROLE_LABELS[user.role] || !token) {
+          throw new Error("El servidor devolvió una sesión no válida.");
+        }
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+          userKey: user.username,
+          role: user.role,
+          name: user.name,
+          label: ROLE_LABELS[user.role],
+          token
+        }));
+      }
+
+      function clearCurrentSession() {
+        localStorage.removeItem(SESSION_KEY);
+      }
+
+      function getSessionToken() {
+        const session = getCurrentSession();
+        return session?.token || "";
+      }
+
+      async function apiRequest(path, options = {}) {
+        const session = getCurrentSession();
+        const headers = new Headers(options.headers || {});
+        if (!(options.body instanceof FormData)) {
+          if (!headers.has("Content-Type") && options.body) {
+            headers.set("Content-Type", "application/json");
+          }
+        }
+        if (session?.token) {
+          headers.set("Authorization", `Bearer ${session.token}`);
+        }
+        const response = await fetch(path, { ...options, headers });
+        const contentType = response.headers.get("content-type") || "";
+        const payload = contentType.includes("application/json") ? await response.json() : await response.text();
+        if (!response.ok) {
+          const message = typeof payload === "object" && payload ? payload.error || "Error del servidor." : String(payload || "Error del servidor.");
+          if (response.status === 401 && path !== "/api/login") {
+            clearCurrentSession();
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(`${STORAGE_KEY}-meta`);
+            products = [];
+            sales = [];
+            applySessionUI();
+            render();
+          }
+          throw new Error(message);
+        }
+        return payload;
+      }
+
+      async function refreshFromServer() {
+        const session = getCurrentSession();
+        if (!session?.token) return;
+        try {
+          const [productsResponse, salesResponse] = await Promise.all([
+            apiRequest("/api/products"),
+            apiRequest("/api/sales")
+          ]);
+          products = Array.isArray(productsResponse) ? productsResponse : [];
+          sales = Array.isArray(salesResponse) ? salesResponse : [];
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.setItem(`${STORAGE_KEY}-meta`, JSON.stringify({ updatedAt: new Date().toISOString(), source: "server" }));
+          render();
+        } catch (error) {
+          notify(error.message || "No se pudo sincronizar con el servidor.");
+        }
+      }
+
+      async function restoreSession() {
+        const session = getCurrentSession();
+        if (!session?.token) {
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(`${STORAGE_KEY}-meta`);
+          applySessionUI();
+          render();
+          return;
+        }
+        try {
+          const response = await apiRequest("/api/me");
+          setCurrentSession(response.user, session.token);
+          applySessionUI();
+          await refreshFromServer();
+        } catch (error) {
+          clearCurrentSession();
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(`${STORAGE_KEY}-meta`);
+          products = [];
+          sales = [];
+          applySessionUI();
+          render();
+          notify("La sesión expiró o ya no es válida. Inicia sesión de nuevo.");
+        }
+      }
+
+      function getSessionPermissions() {
+        const session = getCurrentSession();
+        const role = session?.role || "guest";
+        const isAdmin = role === "admin";
+        const canManageProducts = isAdmin || role === "contabilidad";
+        const canAddProducts = canManageProducts || role === "vendedor";
+        const canSell = isAdmin || role === "vendedor";
+        const canManageFinance = isAdmin || role === "contabilidad";
+        const canViewReports = isAdmin || role === "contabilidad";
+        return {
+          role,
+          isAdmin,
+          canManageUsers: isAdmin,
+          canManageProducts,
+          canAddProducts,
+          canSell,
+          canManageFinance,
+          canViewReports
+        };
+      }
+
+      function ensurePermission(permission, message) {
+        const permissions = getSessionPermissions();
+        if (permissions[permission]) return true;
+        notify(message || "No tienes permisos para realizar esta acción.");
+        return false;
+      }
+
+      function applySessionUI() {
+        const session = getCurrentSession();
+        const permissions = getSessionPermissions();
+        const reportGrid = document.querySelector(".report-grid");
+        if (reportGrid) reportGrid.hidden = !permissions.canViewReports;
+        $("#session-role").textContent = session ? session.label : "Invitado";
+        $("#user-avatar").textContent = session ? session.label.slice(0, 2).toUpperCase() : "G";
+        $("#user-avatar").setAttribute("aria-label", session ? `Usuario activo: ${session.label}` : "Usuario invitado");
+        $("#add-button").style.display = permissions.canAddProducts ? "inline-flex" : "none";
+        $("#block-button").style.display = permissions.canManageProducts ? "inline-flex" : "none";
+        $("#logout-button").style.display = session ? "inline-flex" : "none";
+        $("#username-button").style.display = session ? "inline-flex" : "none";
+        $("#password-button").style.display = session ? "inline-flex" : "none";
+        $("#login-overlay").hidden = Boolean(session);
+        $("#session-role").style.display = session ? "inline-flex" : "none";
+        $("#user-avatar").style.display = session ? "grid" : "none";
+      }
+
+      function loadState() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved === null) return { products: starterProducts.map((item) => ({ ...item })), sales: [] };
+          const data = JSON.parse(saved);
+          const savedProducts = Array.isArray(data) ? data : data.products;
+          const savedSales = Array.isArray(data) ? [] : data.sales;
+          if (!Array.isArray(savedProducts) || savedProducts.some((item) =>
+            !item || typeof item.id !== "string" || typeof item.brand !== "string" ||
+            typeof item.model !== "string" || typeof item.sku !== "string" ||
+            !Number.isFinite(item.price) || !Number.isInteger(item.stock) || item.stock < 0
+          ) || !Array.isArray(savedSales) || savedSales.some((sale) =>
+            !sale || typeof sale.id !== "string" || typeof sale.invoiceNumber !== "string" ||
+            typeof sale.date !== "string" || typeof sale.brand !== "string" ||
+            typeof sale.model !== "string" || typeof sale.customer !== "string" ||
+            typeof sale.storage !== "string" || !Number.isFinite(sale.unitPrice) ||
+            !Number.isFinite(sale.total) || !Array.isArray(sale.devices) ||
+            sale.devices.length === 0 ||
+            sale.devices.some((device) => !device || typeof device.code !== "string" ||
+              !device.code.trim() || typeof device.blocked !== "boolean")
+          )) throw new Error("Los datos guardados no tienen el formato esperado.");
+          const normalizedSales = savedSales.map((sale) => ({
+            ...sale,
+            financing: sale.financing || {
+              financed: false,
+              downPayment: sale.total,
+              installmentCount: 0,
+              installmentAmount: 0,
+              paidAmount: sale.total,
+              payments: []
+            }
+          }));
+          if (normalizedSales.some((sale) =>
+            !sale.financing || typeof sale.financing.financed !== "boolean" ||
+            !Number.isFinite(sale.financing.downPayment) || sale.financing.downPayment < 0 ||
+            !Number.isInteger(sale.financing.installmentCount) || sale.financing.installmentCount < 0 ||
+            !Number.isFinite(sale.financing.installmentAmount) || sale.financing.installmentAmount < 0 ||
+            !Number.isFinite(sale.financing.paidAmount) || sale.financing.paidAmount < 0 ||
+            !Array.isArray(sale.financing.payments) ||
+            sale.financing.payments.some((payment) => !payment || !Number.isFinite(payment.amount) ||
+              payment.amount <= 0 || typeof payment.date !== "string")
+          )) throw new Error("Los datos de financiamiento guardados no tienen el formato esperado.");
+          if (normalizedSales.some((sale) => sale.creditContract && (
+            typeof sale.creditContract.cedula !== "string" ||
+            typeof sale.creditContract.phone !== "string" ||
+            typeof sale.creditContract.purchaseDate !== "string" ||
+            typeof sale.creditContract.finalDate !== "string" ||
+            !Array.isArray(sale.creditContract.references) ||
+            sale.creditContract.references.length !== 2 ||
+            sale.creditContract.references.some((reference) => !reference ||
+              typeof reference.name !== "string" || typeof reference.phone !== "string") ||
+            !sale.creditContract.consents ||
+            typeof sale.creditContract.consents.lateFee !== "boolean" ||
+            typeof sale.creditContract.consents.creditCheck !== "boolean" ||
+            typeof sale.creditContract.consents.deviceLock !== "boolean" ||
+            (sale.creditContract.lateFeeRate !== undefined &&
+              (!Number.isFinite(sale.creditContract.lateFeeRate) ||
+                sale.creditContract.lateFeeRate < 0 || sale.creditContract.lateFeeRate > 1))
+          ))) throw new Error("Los datos del contrato de crédito guardados no tienen el formato esperado.");
+          return { products: savedProducts, sales: normalizedSales };
+        } catch (error) {
+          console.error("No se pudieron cargar los datos guardados:", error);
+          return { products: starterProducts.map((item) => ({ ...item })), sales: [] };
+        }
+      }
+
+      function saveState(nextProducts, nextSales) {
+        try {
+          const payload = { products: nextProducts, sales: nextSales };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+          localStorage.setItem(`${STORAGE_KEY}-meta`, JSON.stringify({ updatedAt: new Date().toISOString() }));
+          products = nextProducts;
+          sales = nextSales;
+          return true;
+        } catch (error) {
+          console.error("No se pudieron guardar los cambios:", error);
+          notify("No se pudieron guardar los cambios en este navegador.");
+          return false;
+        }
+      }
+
+      function exportInventorySummary() {
+        if (!ensurePermission("canViewReports", "Inicia sesión para exportar el inventario.")) return;
+        const csvRows = [
+          ["Marca", "Modelo", "Almacenamiento", "SKU", "Precio", "Stock", "Estado"],
+          ...products.map((item) => {
+            const status = stockStatus(item.stock).text;
+            return [item.brand, item.model, item.storage || "", item.sku, item.price, item.stock, status];
+          })
+        ];
+        const csv = csvRows.map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = `inventario-${new Date().toISOString().slice(0, 10)}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+        notify("Inventario exportado como CSV.");
+      }
+
+      async function resetDemoData() {
+        if (!ensurePermission("canManageProducts", "No tienes permisos para reiniciar el inventario.")) return;
+        const shouldReset = window.confirm("¿Restablecer los datos de prueba? Se borrarán las ventas y el catálogo actual.");
+        if (!shouldReset) return;
+        try {
+          if (getSessionToken()) {
+            await apiRequest("/api/reset-demo", { method: "POST" });
+            await refreshFromServer();
+            notify("Catálogo y ventas restablecidos.");
+            return;
+          }
+          const freshProducts = starterProducts.map((item) => ({ ...item }));
+          const freshSales = [];
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ products: freshProducts, sales: freshSales }));
+          localStorage.setItem(`${STORAGE_KEY}-meta`, JSON.stringify({ updatedAt: new Date().toISOString() }));
+          products = freshProducts;
+          sales = freshSales;
+          render();
+          notify("Catálogo y ventas restablecidos.");
+        } catch (error) {
+          notify(error.message || "No se pudieron restablecer los datos de prueba.");
+        }
+      }
+
+      function ensureQuickActions() {
+        const container = document.querySelector(".intro .top-right");
+        if (!container || document.getElementById("export-button")) return;
+        const exportButton = document.createElement("button");
+        exportButton.type = "button";
+        exportButton.id = "export-button";
+        exportButton.className = "button button-light";
+        exportButton.textContent = "⤓ Exportar";
+        exportButton.addEventListener("click", exportInventorySummary);
+        container.insertBefore(exportButton, container.lastElementChild);
+        const resetButton = document.createElement("button");
+        resetButton.type = "button";
+        resetButton.id = "reset-button";
+        resetButton.className = "button button-light";
+        resetButton.textContent = "↺ Reiniciar";
+        resetButton.addEventListener("click", resetDemoData);
+        container.insertBefore(resetButton, container.lastElementChild);
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        })[char]);
+      }
+
+      function money(amount) {
+        return new Intl.NumberFormat("es-DO", { style: "currency", currency: "DOP", maximumFractionDigits: 2 }).format(amount);
+      }
+
+      function installmentAmounts(amount, count) {
+        const totalCents = Math.round(amount * 100);
+        const baseCents = Math.floor(totalCents / count);
+        const extraCents = totalCents % count;
+        return Array.from({ length: count }, (_, index) => (baseCents + (index < extraCents ? 1 : 0)) / 100);
+      }
+
+      function installmentDueDateValue(sale, installmentNumber) {
+        const contract = sale.creditContract;
+        const purchaseDate = contract && contract.purchaseDate ? contract.purchaseDate : sale.date.slice(0, 10);
+        if (contract && contract.installmentFrequency === "biweekly") {
+          return dateAfterDays(purchaseDate, installmentNumber * 15);
+        }
+        return dateAfterMonths(purchaseDate, installmentNumber);
+      }
+
+      function dateDayNumber(dateValue) {
+        const [year, month, day] = dateValue.split("-").map(Number);
+        return Math.floor(Date.UTC(year, month - 1, day) / 86400000);
+      }
+
+      function calculateCreditBalance(sale, asOfDate = currentDateInputValue()) {
+        const financing = sale.financing;
+        const principalBalance = Math.max(0, Math.round((sale.total - financing.paidAmount) * 100));
+        const contract = sale.creditContract;
+        const dailyRate = contract && Number.isFinite(contract.lateFeeRate) ? contract.lateFeeRate : 0;
+        if (!financing.financed || financing.installmentCount < 1 || dailyRate <= 0) {
+          return {
+            principalCents: principalBalance,
+            lateFeeCents: 0,
+            totalCents: principalBalance,
+            installments: []
+          };
+        }
+
+        const amounts = installmentAmounts(sale.total - financing.downPayment, financing.installmentCount);
+        const installments = amounts.map((amount, index) => ({
+          dueDate: installmentDueDateValue(sale, index + 1),
+          dueDay: dateDayNumber(installmentDueDateValue(sale, index + 1)),
+          principalCents: Math.round(amount * 100),
+          lateFeeCents: 0,
+          daysLate: 0
+        }));
+        let cursor = dateDayNumber(contract.purchaseDate || sale.date.slice(0, 10));
+
+        function accrueThrough(dateValue) {
+          const targetDay = dateDayNumber(dateValue);
+          if (targetDay <= cursor) return;
+          for (const installment of installments) {
+            const firstLateDay = Math.max(cursor + 1, installment.dueDay + 1);
+            const days = Math.max(0, targetDay - firstLateDay + 1);
+            if (days > 0 && installment.principalCents > 0) {
+              const dailyFeeCents = Math.round(installment.principalCents * dailyRate);
+              installment.lateFeeCents += dailyFeeCents * days;
+              installment.daysLate = targetDay - installment.dueDay;
+            }
+          }
+          cursor = targetDay;
+        }
+
+        function applyFees(amountCents) {
+          let remaining = amountCents;
+          for (const installment of installments) {
+            const applied = Math.min(remaining, installment.lateFeeCents);
+            installment.lateFeeCents -= applied;
+            remaining -= applied;
+            if (remaining === 0) break;
+          }
+          return amountCents - remaining;
+        }
+
+        function applyPrincipal(amountCents) {
+          let remaining = amountCents;
+          for (const installment of installments) {
+            const applied = Math.min(remaining, installment.principalCents);
+            installment.principalCents -= applied;
+            remaining -= applied;
+            if (remaining === 0) break;
+          }
+          return amountCents - remaining;
+        }
+
+        const payments = [...financing.payments].sort((a, b) => a.date.localeCompare(b.date));
+        for (const payment of payments) {
+          const paymentDate = payment.date.slice(0, 10);
+          accrueThrough(paymentDate);
+          if (Number.isFinite(payment.principalAmount) && Number.isFinite(payment.lateFeeAmount)) {
+            applyFees(Math.round(payment.lateFeeAmount * 100));
+            applyPrincipal(Math.round(payment.principalAmount * 100));
+          } else {
+            applyPrincipal(Math.round(payment.amount * 100));
+          }
+        }
+        accrueThrough(asOfDate);
+
+        const principalCents = installments.reduce((sum, item) => sum + item.principalCents, 0);
+        const lateFeeCents = installments.reduce((sum, item) => sum + item.lateFeeCents, 0);
+        return { principalCents, lateFeeCents, totalCents: principalCents + lateFeeCents, installments };
+      }
+
+      function currentDateInputValue() {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      }
+
+      function dateAfterMonths(dateValue, months) {
+        if (!dateValue) return "";
+        const [year, month, day] = dateValue.split("-").map(Number);
+        const target = new Date(year, month - 1 + months, 1);
+        const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+        target.setDate(Math.min(day, lastDay));
+        return `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, "0")}-${String(target.getDate()).padStart(2, "0")}`;
+      }
+
+      function dateAfterDays(dateValue, days) {
+        if (!dateValue) return "";
+        const [year, month, day] = dateValue.split("-").map(Number);
+        const target = new Date(Date.UTC(year, month - 1, day + days));
+        return `${target.getUTCFullYear()}-${String(target.getUTCMonth() + 1).padStart(2, "0")}-${String(target.getUTCDate()).padStart(2, "0")}`;
+      }
+
+      function displayDate(dateValue) {
+        if (!dateValue) return "";
+        const [year, month, day] = dateValue.split("-").map(Number);
+        return new Date(year, month - 1, day).toLocaleDateString("es-DO");
+      }
+
+      function stockStatus(stock) {
+        if (stock === 0) return { text: "Agotado", className: "status-out" };
+        if (stock <= 5) return { text: "Stock bajo", className: "status-low" };
+        return { text: "Disponible", className: "status-ok" };
+      }
+
+      function findDevice(code) {
+        const normalizedCode = code.trim().toLocaleLowerCase();
+        for (const sale of sales) {
+          const device = sale.devices.find((item) => item.code.toLocaleLowerCase() === normalizedCode);
+          if (device) return { sale, device };
+        }
+        return null;
+      }
+
+      function renderSales() {
+        const permissions = getSessionPermissions();
+        const devices = sales.flatMap((sale) => sale.devices.map((device) => ({ sale, device })))
+          .sort((a, b) => b.sale.date.localeCompare(a.sale.date));
+        salesRows.innerHTML = devices.map(({ sale, device }) => {
+          const balance = calculateCreditBalance(sale);
+          const outstanding = balance.totalCents / 100;
+          const canManageFinance = permissions.canManageFinance;
+          const canManageProducts = permissions.canManageProducts;
+          const canDeleteSales = permissions.isAdmin;
+          return `<tr>
+            <td><span class="sku">${escapeHtml(sale.invoiceNumber)}</span></td>
+            <td><div class="product-name">${escapeHtml(sale.brand)} ${escapeHtml(sale.model)}</div><div class="product-meta">${escapeHtml(device.code)}</div></td>
+            <td>${escapeHtml(sale.customer || "Cliente general")}</td>
+            <td>${escapeHtml(new Date(sale.date).toLocaleDateString("es"))}</td>
+            <td><span class="price">${money(sale.total)}</span></td>
+            <td>${money(outstanding)}${balance.lateFeeCents ? `<div class="product-meta">Incluye ${money(balance.lateFeeCents / 100)} de mora</div>` : ""}</td>
+            <td><span class="status ${device.blocked ? "status-blocked" : outstanding > 0 ? "status-pending" : "status-unblocked"}">${device.blocked ? "Bloqueado" : outstanding > 0 ? "Pendiente" : "Pagado"}</span></td>
+            <td><div class="actions">${outstanding > 0 && canManageFinance ? `<button class="action" data-action="payment" data-id="${escapeHtml(sale.id)}">Registrar abono</button>` : ""}<button class="action" data-action="print" data-id="${escapeHtml(sale.id)}">Imprimir factura</button>${canManageProducts ? `<button class="action ${device.blocked ? "" : "danger"}" data-action="toggle-block" data-code="${escapeHtml(device.code)}">${device.blocked ? "Desbloquear" : "Bloquear"}</button>` : ""}${canDeleteSales ? `<button class="action danger" data-action="delete-sale" data-id="${escapeHtml(sale.id)}">Eliminar venta</button>` : ""}</div></td>
+          </tr>`;
+        }).join("");
+        $("#sales-empty").hidden = devices.length !== 0;
+      }
+
+      function render() {
+        const permissions = getSessionPermissions();
+        const query = $("#search").value.trim().toLocaleLowerCase();
+        const brand = $("#brand-filter").value;
+        const stockFilter = $("#stock-filter").value;
+        const filtered = products.filter((item) => {
+          const matchesQuery = [item.brand, item.model, item.storage, item.sku].some((value) => String(value || "").toLocaleLowerCase().includes(query));
+          const matchesBrand = !brand || item.brand === brand;
+          const matchesStock = !stockFilter || (stockFilter === "available" ? item.stock > 5 : stockFilter === "low" ? item.stock > 0 && item.stock <= 5 : item.stock === 0);
+          return matchesQuery && matchesBrand && matchesStock;
+        });
+        rows.innerHTML = filtered.map((item) => {
+          const status = stockStatus(item.stock);
+          const canSell = permissions.canSell && item.stock > 0;
+          const canEdit = permissions.canManageProducts;
+          const canDelete = permissions.canManageProducts;
+          return `<tr>
+            <td><div class="product"><div class="product-icon" aria-hidden="true">▯</div><div><div class="product-name">${escapeHtml(item.brand)} ${escapeHtml(item.model)}</div><div class="product-meta">${escapeHtml(item.storage || "Almacenamiento no especificado")}</div></div></div></td>
+            <td><span class="sku">${escapeHtml(item.sku)}</span></td>
+            <td><span class="price">${money(item.price)}</span></td>
+            <td><span class="stock-number">${item.stock}</span> <span class="product-meta">unid.</span></td>
+            <td><span class="status ${status.className}">${status.text}</span></td>
+            <td><div class="actions"><button class="action sell" data-action="sell" data-id="${escapeHtml(item.id)}" ${canSell ? "" : "disabled"}>Vender</button><button class="action" data-action="edit" data-id="${escapeHtml(item.id)}" ${canEdit ? "" : "disabled"}>Editar</button><button class="action" data-action="delete" data-id="${escapeHtml(item.id)}" aria-label="Eliminar ${escapeHtml(item.brand)} ${escapeHtml(item.model)}" ${canDelete ? "" : "disabled"}>Eliminar</button></div></td>
+          </tr>`;
+        }).join("");
+        $("#empty-state").hidden = filtered.length !== 0;
+        $("#inventory-count").textContent = `${filtered.length} ${filtered.length === 1 ? "producto" : "productos"}${filtered.length !== products.length ? ` de ${products.length}` : ""}`;
+        const activeCredits = sales.filter((sale) => sale.financing && sale.financing.financed && calculateCreditBalance(sale).totalCents > 0).length;
+        const todaySales = sales.filter((sale) => new Date(sale.date).toDateString() === new Date().toDateString()).reduce((sum, sale) => sum + sale.total, 0);
+        const pendingCollections = sales.reduce((sum, sale) => sum + Math.max(0, calculateCreditBalance(sale).totalCents / 100), 0);
+        const criticalProducts = products.filter((item) => item.stock <= 5).length;
+        $("#daily-sales").textContent = money(todaySales);
+        $("#active-credit-sales").textContent = activeCredits;
+        $("#pending-collections").textContent = money(pendingCollections);
+        $("#critical-products").textContent = criticalProducts;
+        const lastSaved = (() => {
+          try {
+            const timestamp = JSON.parse(localStorage.getItem(`${STORAGE_KEY}-meta`) || "null")?.updatedAt;
+            if (!timestamp) return "Sin guardado local";
+            return `Guardado: ${new Date(timestamp).toLocaleString("es")}`;
+          } catch (error) {
+            return "Sin guardado local";
+          }
+        })();
+        $("#table-foot").textContent = `${products.length} modelos en el catálogo · ${lastSaved}`;
+        $("#product-count").textContent = products.length;
+        $("#unit-count").textContent = products.reduce((sum, item) => sum + item.stock, 0).toLocaleString("es");
+        $("#inventory-value").textContent = money(products.reduce((sum, item) => sum + item.stock * item.price, 0));
+        $("#low-count").textContent = products.filter((item) => item.stock > 0 && item.stock <= 5).length;
+        const brands = [...new Set(products.map((item) => item.brand))].sort((a, b) => a.localeCompare(b, "es"));
+        const selectedBrand = $("#brand-filter").value;
+        $("#brand-filter").innerHTML = '<option value="">Todas las marcas</option>' + brands.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+        if (brands.includes(selectedBrand)) $("#brand-filter").value = selectedBrand;
+        renderSales();
+      }
+
+      function notify(message) {
+        const toast = $("#toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+      }
+
+      function closeModals() {
+        productOverlay.hidden = true;
+        saleOverlay.hidden = true;
+        blockOverlay.hidden = true;
+        paymentOverlay.hidden = true;
+        passwordOverlay.hidden = true;
+        usernameOverlay.hidden = true;
+      }
+
+      function renderDeviceCodeInputs(quantity, previousCodes = []) {
+        $("#sale-device-codes").innerHTML = Array.from({ length: quantity }, (_, index) =>
+          `<div><label for="device-code-${index + 1}">Equipo ${index + 1} · IMEI o serie *</label><input id="device-code-${index + 1}" class="field device-code" required maxlength="40" autocomplete="off" placeholder="Código único del teléfono" value="${escapeHtml(previousCodes[index] || "")}"></div>`
+        ).join("");
+      }
+
+      function updateFinancingPreview() {
+        const isFinanced = $("#sale-payment-type").value === "financed";
+        $("#financing-fields").hidden = !isFinanced;
+        $("#sale-down-payment").required = isFinanced;
+        $("#sale-installments").required = isFinanced;
+        $("#sale-customer").required = isFinanced;
+        ["credit-cedula", "credit-phone", "credit-purchase-date", "credit-final-date",
+          "reference-one-name", "reference-one-phone", "reference-two-name", "reference-two-phone",
+          "consent-late-fee", "consent-credit-check", "consent-device-lock"].forEach((id) => {
+          $(`#${id}`).required = isFinanced;
+        });
+        if (isFinanced) updateCreditFinalDate();
+        if (!isFinanced) return;
+        const product = products.find((item) => item.id === $("#sale-id").value);
+        const quantity = Number($("#sale-quantity").value);
+        const total = product && Number.isInteger(quantity) && quantity > 0 ? product.price * quantity : 0;
+        const downPayment = Number($("#sale-down-payment").value);
+        const count = Number($("#sale-installments").value);
+        const balance = total - downPayment;
+        if (!total || !Number.isFinite(downPayment) || downPayment < 0 || downPayment > total ||
+            !Number.isInteger(count) || count < 1 || count > 60) {
+          $("#financing-preview").textContent = "Ingresa un anticipo válido y entre 1 y 60 cuotas.";
+          return;
+        }
+        $("#financing-preview").textContent = balance > 0
+          ? `Total: ${money(total)} · Inicial: ${money(downPayment)} · Saldo: ${money(balance)} · ${count} cuotas quincenales (cada 15 días), sin intereses ordinarios, de aproximadamente ${money(balance / count)}. Mora simple del 10% del saldo de cada cuota por cada día calendario de atraso, desde el día siguiente al vencimiento.`
+          : `Total: ${money(total)} · El anticipo cubre el equipo; no quedan cuotas pendientes.`;
+      }
+
+      function updateCreditFinalDate() {
+        const startDate = $("#credit-purchase-date").value;
+        const installmentCount = Number($("#sale-installments").value);
+        $("#credit-final-date").value = startDate
+          ? dateAfterDays(startDate, (Number.isInteger(installmentCount) && installmentCount > 0 ? installmentCount : 0) * 15)
+          : "";
+      }
+
+      function openPaymentModal(sale) {
+        if (!ensurePermission("canManageFinance", "Inicia sesión con permisos contables para registrar abonos.")) return;
+        const balance = calculateCreditBalance(sale);
+        const outstanding = balance.totalCents / 100;
+        paymentForm.reset();
+        $("#payment-sale-id").value = sale.id;
+        $("#payment-sale-summary").textContent = `Factura ${sale.invoiceNumber} · Capital: ${money(balance.principalCents / 100)} · Mora acumulada: ${money(balance.lateFeeCents / 100)} · Total pendiente: ${money(outstanding)}`;
+        $("#payment-amount").max = outstanding.toFixed(2);
+        $("#payment-amount").value = outstanding.toFixed(2);
+        $("#payment-breakdown").textContent = "El abono se aplica primero a la mora acumulada y luego al capital pendiente.";
+        paymentOverlay.hidden = false;
+        $("#payment-amount").focus();
+      }
+
+      async function deleteSale(saleId) {
+        if (!ensurePermission("isAdmin", "Solo un administrador puede eliminar ventas.")) return;
+        const sale = sales.find((item) => item.id === saleId);
+        if (!sale) {
+          notify("No se encontró la venta que intentas eliminar.");
+          render();
+          return;
+        }
+        if (!confirm(`¿Eliminar la venta ${sale.invoiceNumber} y todos sus equipos, IMEI y abonos del historial? Esta acción no se puede deshacer y no devuelve unidades al inventario.`)) return;
+        try {
+          if (getSessionToken()) {
+            await apiRequest(`/api/sales/${sale.id}`, { method: "DELETE" });
+            sales = sales.filter((item) => item.id !== sale.id);
+            render();
+            notify("Venta eliminada. El inventario no se modificó.");
+            return;
+          }
+          const nextSales = sales.filter((item) => item.id !== sale.id);
+          if (saveState(products, nextSales)) {
+            render();
+            notify("Venta eliminada. El inventario no se modificó.");
+          }
+        } catch (error) {
+          notify(error.message || "No se pudo eliminar este registro.");
+        }
+      }
+
+      function openBlockModal(code = "") {
+        if (!ensurePermission("canManageProducts", "Inicia sesión para bloquear equipos.")) return;
+        $("#block-form").reset();
+        $("#block-result").replaceChildren();
+        $("#block-code").value = code;
+        blockOverlay.hidden = false;
+        $("#block-code").focus();
+      }
+
+      function showBlockResult(code) {
+        const result = $("#block-result");
+        const match = findDevice(code);
+        if (!match) {
+          result.innerHTML = '<div class="block-result">No se encontró una venta con ese código. Verifica el IMEI o número de serie.</div>';
+          return;
+        }
+        const { sale, device } = match;
+        result.innerHTML = `<div class="block-result"><p><strong>${escapeHtml(sale.brand)} ${escapeHtml(sale.model)}</strong></p><p>Código: ${escapeHtml(device.code)}</p><p>Estado: ${device.blocked ? "Bloqueado en el registro" : "Activo"}</p><p class="notice warning">Esto solo actualiza el registro de Inversiones Peni Solutions; no bloquea el teléfono en la red ni en el dispositivo.</p><button class="button ${device.blocked ? "button-light" : "button-primary"}" type="button" data-action="toggle-block" data-code="${escapeHtml(device.code)}">${device.blocked ? "Desbloquear registro" : "Bloquear registro"}</button></div>`;
+      }
+
+      async function toggleDeviceBlock(code) {
+        if (!ensurePermission("canManageProducts", "Inicia sesión para bloquear equipos.")) return;
+        const match = findDevice(code);
+        if (!match) {
+          notify("No se encontró un equipo vendido con ese código.");
+          return;
+        }
+        try {
+          if (getSessionToken()) {
+            const shouldBlock = !match.device.blocked;
+            const updated = await apiRequest(shouldBlock ? "/api/devices/block" : "/api/devices/unblock", {
+              method: "POST",
+              body: JSON.stringify({ imei: code })
+            });
+            sales = sales.map((sale) => sale.id === match.sale.id ? {
+              ...sale,
+              devices: sale.devices.map((device) => device.code.toLocaleLowerCase() === code.trim().toLocaleLowerCase()
+                ? { ...device, blocked: updated.blocked }
+                : device)
+            } : sale);
+            render();
+            if (!blockOverlay.hidden) showBlockResult(code);
+            notify(updated.blocked ? "Equipo marcado como bloqueado en el registro." : "Equipo marcado como activo en el registro.");
+            return;
+          }
+          const nextSales = sales.map((sale) => sale.id === match.sale.id ? {
+            ...sale,
+            devices: sale.devices.map((device) => device.code.toLocaleLowerCase() === code.trim().toLocaleLowerCase()
+              ? { ...device, blocked: !device.blocked }
+              : device)
+          } : sale);
+          if (saveState(products, nextSales)) {
+            render();
+            if (!blockOverlay.hidden) showBlockResult(code);
+            notify(match.device.blocked ? "Equipo marcado como bloqueado en el registro." : "Equipo marcado como activo en el registro.");
+          }
+        } catch (error) {
+          notify(error.message || "No se pudo cambiar el estado del equipo.");
+        }
+      }
+
+      function printInvoice(sale) {
+        const printWindow = window.open("", "_blank");
+        if (!printWindow) {
+          notify("El navegador bloqueó la ventana de impresión. Permite ventanas emergentes e inténtalo de nuevo.");
+          return;
+        }
+        const issuedAt = new Date(sale.date).toLocaleString("es");
+        const codes = sale.devices.map((device) => `<li>${escapeHtml(device.code)}</li>`).join("");
+        const financing = sale.financing;
+        const credit = sale.creditContract;
+        const balance = calculateCreditBalance(sale);
+        const outstanding = balance.totalCents / 100;
+        const installmentFrequencyLabel = credit && credit.installmentFrequency === "biweekly"
+          ? "quincenales (cada 15 días)"
+          : "mensuales";
+        const schedule = financing.financed && financing.installmentCount > 0
+          ? balance.installments.map((installment, index) => {
+            const due = installment.principalCents / 100;
+            const fee = installment.lateFeeCents / 100;
+            return `<tr><td>${index + 1}</td><td>${escapeHtml(displayDate(installment.dueDate))}</td><td>${money(due)}</td><td>${installment.daysLate}</td><td>${money(fee)}</td><td>${money(due + fee)}</td></tr>`;
+          }).join("")
+          : "";
+        const lateFeeClause = credit && credit.lateFeeRate
+          ? `Se aplicará una mora simple del ${Math.round(credit.lateFeeRate * 100)}% del saldo de cada cuota vencida por cada día calendario de atraso, desde el primer día posterior al vencimiento. No se cobra mora sobre la mora acumulada.`
+          : "Se informó mora única del 10% por cuota vencida por más de un día, según las condiciones aceptadas al momento de la venta.";
+        const financingDetails = financing.financed
+          ? `<h2>Contrato de venta a crédito</h2><p>Fecha de compra: <strong>${escapeHtml(displayDate(credit ? credit.purchaseDate : sale.date.slice(0, 10)))}</strong> · Fecha de finalización: <strong>${escapeHtml(displayDate(credit ? credit.finalDate : "")) || "No especificada"}</strong></p>${credit ? `<p><strong>Cédula:</strong> ${escapeHtml(credit.cedula)} · <strong>Teléfono:</strong> ${escapeHtml(credit.phone)}</p><h3>Referencias personales</h3><ol><li>${escapeHtml(credit.references[0].name)} · ${escapeHtml(credit.references[0].phone)}</li><li>${escapeHtml(credit.references[1].name)} · ${escapeHtml(credit.references[1].phone)}</li></ol>` : ""}<p>Precio del teléfono: <strong>${money(sale.total)}</strong> · Inicial: <strong>${money(financing.downPayment)}</strong></p><p>${financing.installmentCount > 0 ? `Saldo financiado: <strong>${money(sale.total - financing.downPayment)}</strong> en ${financing.installmentCount} cuotas ${installmentFrequencyLabel} sin intereses ordinarios.` : "El anticipo cubre el total; no quedan cuotas."} Saldo de capital: <strong>${money(balance.principalCents / 100)}</strong> · Mora acumulada: <strong>${money(balance.lateFeeCents / 100)}</strong> · Total pendiente: <strong>${money(outstanding)}</strong></p>${schedule ? `<table><thead><tr><th>Cuota</th><th>Vencimiento</th><th>Capital pendiente</th><th>Días de atraso</th><th>Mora</th><th>Total</th></tr></thead><tbody>${schedule}</tbody></table>` : ""}<h3>Mora por atraso</h3><p>${escapeHtml(lateFeeClause)}</p><h3>Garantía</h3><p>Garantía de 15 días por problemas de sistema. Pasado ese plazo, el equipo se revisará para identificar la avería y se notificará al cliente el diagnóstico. La garantía y cualquier reparación quedan sujetas a la evaluación del equipo.</p>${credit ? `<h3>Consentimientos del cliente</h3><ul><li>El cliente acepta que se le informó sobre la mora por atraso.</li><li>El cliente autoriza la revisión y el registro de los datos de esta solicitud de crédito. Esta aplicación no consulta burós de crédito ni envía datos a terceros.</li><li>El cliente acepta que se le informó sobre la posible gestión de bloqueo por falta de pago, cuando sea técnicamente posible y legalmente permitido; esta aplicación solo registra el estado y no bloquea el equipo ni la red.</li></ul>` : ""}<div class="signatures"><div><span>Firma del cliente</span></div><div><span>Firma del empleado</span></div></div>`
+          : `<p><strong>Forma de pago:</strong> Contado · Pagado</p>`;
+        const paymentHistory = financing.payments.length
+          ? `<h2>Abonos registrados</h2><ul>${financing.payments.map((payment) => `<li>${escapeHtml(new Date(payment.date).toLocaleDateString("es"))}: ${money(payment.amount)}</li>`).join("")}</ul>`
+          : "";
+        printWindow.document.write(`<!doctype html><html lang="es"><head><meta charset="UTF-8"><title>${escapeHtml(sale.invoiceNumber)}</title><style>body{font:15px Arial,sans-serif;color:#172033;max-width:760px;margin:40px auto;padding:0 24px}header{display:flex;justify-content:space-between;border-bottom:2px solid #6656e8;padding-bottom:18px}h1{font-size:24px;margin:0 0 6px}h2{font-size:18px;margin-top:28px}h3{font-size:15px;margin-top:22px}.muted{color:#667085}table{width:100%;border-collapse:collapse;margin-top:24px}th,td{text-align:left;padding:12px;border-bottom:1px solid #ddd}th:last-child,td:last-child{text-align:right}.total{text-align:right;font-size:20px;font-weight:bold;margin-top:24px}.codes{line-height:1.8}.signatures{display:grid;grid-template-columns:1fr 1fr;gap:70px;margin:90px 20px 30px}.signatures div{border-top:1px solid #333;padding-top:10px;text-align:center}.muted{font-size:12px}@media print{body{margin:0 auto}}</style></head><body><header><div><h1>Inversiones Peni Solutions</h1><div class="muted">${financing.financed ? "Contrato / comprobante de venta a crédito" : "Factura / comprobante de venta"}</div></div><div><strong>${escapeHtml(sale.invoiceNumber)}</strong><div class="muted">${escapeHtml(issuedAt)}</div></div></header><p><strong>Cliente:</strong> ${escapeHtml(sale.customer || "Cliente general")}</p><table><thead><tr><th>Descripción</th><th>Cantidad</th><th>Precio unitario</th><th>Total</th></tr></thead><tbody><tr><td>${escapeHtml(sale.brand)} ${escapeHtml(sale.model)}${sale.storage ? ` · ${escapeHtml(sale.storage)}` : ""}</td><td>${sale.devices.length}</td><td>${money(sale.unitPrice)}</td><td>${money(sale.total)}</td></tr></tbody></table><div class="total">Total: ${money(sale.total)}</div>${financingDetails}${paymentHistory}<h2>Código(s) del equipo (IMEI / serie)</h2><ul class="codes">${codes}</ul><p class="muted">Comprobante generado por Inversiones Peni Solutions. Modelo informativo; revisar las condiciones y su cumplimiento legal antes de utilizarlo.</p></body></html>`);
+        if (!financing.financed) {
+          const codesHeading = [...printWindow.document.querySelectorAll("h2")]
+            .find((heading) => heading.textContent.startsWith("Código(s) del equipo"));
+          if (codesHeading) {
+            const warrantyHeading = printWindow.document.createElement("h2");
+            warrantyHeading.textContent = "Garantía del equipo";
+            const warrantyText = printWindow.document.createElement("p");
+            warrantyText.textContent = "Garantía de 15 días por problemas de sistema. Pasado ese plazo, el equipo se revisará para identificar la avería y se notificará al cliente el diagnóstico. La garantía y cualquier reparación quedan sujetas a la evaluación del equipo.";
+            codesHeading.before(warrantyHeading, warrantyText);
+          }
+        }
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => printWindow.print(), 250);
+      }
+
+      function openProduct(product) {
+        const permission = product ? "canManageProducts" : "canAddProducts";
+        if (!ensurePermission(permission, "Inicia sesión para gestionar productos.")) return;
+        form.reset();
+        $("#product-id").value = product ? product.id : "";
+        $("#product-modal-title").textContent = product ? "Editar producto" : "Agregar producto";
+        const popularBrands = [...$("#brand").options].map((option) => option.value);
+        const brandIsPopular = product && popularBrands.includes(product.brand);
+        $("#brand").value = product ? (brandIsPopular ? product.brand : "other") : "";
+        $("#custom-brand").hidden = !product || brandIsPopular;
+        $("#custom-brand").required = Boolean(product && !brandIsPopular);
+        $("#custom-brand").value = product && !brandIsPopular ? product.brand : "";
+        $("#model").value = product ? product.model : "";
+        $("#storage").value = product ? product.storage || "" : "";
+        $("#sku").value = product ? product.sku : "";
+        $("#price").value = product ? product.price : "";
+        $("#stock").value = product ? product.stock : "";
+        productOverlay.hidden = false;
+        $("#brand").focus();
+      }
+
+      $("#brand").addEventListener("change", () => {
+        const customBrand = $("#custom-brand");
+        const needsCustomBrand = $("#brand").value === "other";
+        customBrand.hidden = !needsCustomBrand;
+        customBrand.required = needsCustomBrand;
+        if (needsCustomBrand) customBrand.focus();
+        else customBrand.value = "";
+      });
+
+      $("#today").textContent = new Intl.DateTimeFormat("es", { dateStyle: "long" }).format(new Date());
+      $("#add-button").addEventListener("click", () => openProduct(null));
+      $("#block-button").addEventListener("click", () => {
+        if (!ensurePermission("canManageProducts", "Inicia sesión para bloquear equipos.")) return;
+        openBlockModal();
+      });
+      $("#sale-payment-type").addEventListener("change", updateFinancingPreview);
+      $("#sale-down-payment").addEventListener("input", updateFinancingPreview);
+      $("#sale-installments").addEventListener("input", updateFinancingPreview);
+      $("#credit-purchase-date").addEventListener("input", updateFinancingPreview);
+      $("#sale-installments").addEventListener("change", updateFinancingPreview);
+      $("#credit-purchase-date").addEventListener("change", updateFinancingPreview);
+      $("#search").addEventListener("input", render);
+      $("#brand-filter").addEventListener("change", render);
+      $("#stock-filter").addEventListener("change", render);
+      document.querySelectorAll("[data-close]").forEach((button) => button.addEventListener("click", closeModals));
+      [productOverlay, saleOverlay, blockOverlay, paymentOverlay].forEach((overlay) => overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) closeModals();
+      }));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeModals();
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const id = $("#product-id").value;
+        const permission = id ? "canManageProducts" : "canAddProducts";
+        if (!ensurePermission(permission, "Inicia sesión para guardar productos.")) return;
+        if (!form.reportValidity()) return;
+        const sku = $("#sku").value.trim();
+        if (products.some((item) => item.sku.toLocaleLowerCase() === sku.toLocaleLowerCase() && item.id !== id)) {
+          $("#sku").setCustomValidity("Este código ya está registrado.");
+          $("#sku").reportValidity();
+          $("#sku").setCustomValidity("");
+          return;
+        }
+        const product = {
+          id: id || (globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : `p-${Date.now()}-${Math.random().toString(36).slice(2)}`),
+          brand: ($("#brand").value === "other" ? $("#custom-brand").value : $("#brand").value).trim(),
+          model: $("#model").value.trim(),
+          storage: $("#storage").value.trim(),
+          sku,
+          price: Number($("#price").value),
+          stock: Number($("#stock").value)
+        };
+        try {
+          if (getSessionToken()) {
+            const savedProduct = await apiRequest(id ? `/api/products/${id}` : "/api/products", {
+              method: id ? "PUT" : "POST",
+              body: JSON.stringify(product)
+            });
+            const nextProducts = id
+              ? products.map((item) => item.id === id ? savedProduct : item)
+              : [...products, savedProduct];
+            products = nextProducts;
+            closeModals();
+            render();
+            notify(id ? "Producto actualizado." : "Producto agregado al inventario.");
+            return;
+          }
+          const nextProducts = id
+            ? products.map((item) => item.id === id ? product : item)
+            : [...products, product];
+          if (saveState(nextProducts, sales)) {
+            closeModals();
+            render();
+            notify(id ? "Producto actualizado." : "Producto agregado al inventario.");
+          }
+        } catch (error) {
+          notify(error.message || "No se pudo guardar el producto.");
+        }
+      });
+
+      rows.addEventListener("click", async (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const product = products.find((item) => item.id === button.dataset.id);
+        if (!product) return;
+        if (button.dataset.action === "edit") {
+          if (!ensurePermission("canManageProducts", "Inicia sesión para editar productos.")) return;
+          openProduct(product);
+          return;
+        }
+        if (button.dataset.action === "delete") {
+          if (!ensurePermission("canManageProducts", "Inicia sesión para eliminar productos.")) return;
+          if (!confirm(`¿Eliminar ${product.brand} ${product.model} del inventario?`)) return;
+          try {
+            if (getSessionToken()) {
+              await apiRequest(`/api/products/${product.id}`, { method: "DELETE" });
+              products = products.filter((item) => item.id !== product.id);
+              render();
+              notify("Producto eliminado.");
+              return;
+            }
+            const nextProducts = products.filter((item) => item.id !== product.id);
+            if (saveState(nextProducts, sales)) {
+              render();
+              notify("Producto eliminado.");
+            }
+          } catch (error) {
+            notify(error.message || "No se pudo eliminar el producto.");
+          }
+          return;
+        }
+        if (button.dataset.action === "sell") {
+          if (!ensurePermission("canSell", "Inicia sesión con permisos de venta.")) return;
+          $("#sale-product-name").textContent = `${product.brand} ${product.model} · ${product.stock} disponibles`;
+          saleForm.reset();
+          $("#sale-id").value = product.id;
+          $("#sale-quantity").max = product.stock;
+          $("#sale-quantity").value = 1;
+          $("#sale-customer").value = "";
+          $("#sale-payment-type").value = "cash";
+          $("#sale-down-payment").value = "0";
+          $("#sale-installments").value = "12";
+          $("#credit-purchase-date").value = currentDateInputValue();
+          $("#credit-final-date").value = dateAfterMonths($("#credit-purchase-date").value, 12);
+          renderDeviceCodeInputs(1);
+          updateFinancingPreview();
+          saleOverlay.hidden = false;
+          $("#sale-quantity").focus();
+        }
+      });
+
+      $("#sale-quantity").addEventListener("input", () => {
+        const quantity = Number($("#sale-quantity").value);
+        const product = products.find((item) => item.id === $("#sale-id").value);
+        if (product && Number.isInteger(quantity) && quantity > 0 && quantity <= product.stock) {
+          const codeInputs = [...saleForm.querySelectorAll(".device-code")];
+          if (codeInputs.length !== quantity) {
+            const previousCodes = codeInputs.map((input) => input.value);
+            renderDeviceCodeInputs(quantity, previousCodes);
+          }
+        }
+        updateFinancingPreview();
+      });
+
+      saleForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!ensurePermission("canSell", "Necesitas permisos de venta para registrar una venta.")) return;
+        const product = products.find((item) => item.id === $("#sale-id").value);
+        const quantity = Number($("#sale-quantity").value);
+        if (!product || !Number.isInteger(quantity) || quantity < 1 || quantity > product.stock) {
+          $("#sale-quantity").setCustomValidity("La cantidad debe ser un número entero disponible en stock.");
+          $("#sale-quantity").reportValidity();
+          $("#sale-quantity").setCustomValidity("");
+          return;
+        }
+        if (!saleForm.reportValidity()) return;
+        const codeInputs = [...saleForm.querySelectorAll(".device-code")];
+        const codes = codeInputs.map((input) => input.value.trim());
+        const blankCodeInput = codeInputs.find((input) => !input.value.trim());
+        if (blankCodeInput) {
+          blankCodeInput.setCustomValidity("Ingresa el código único de cada teléfono.");
+          blankCodeInput.reportValidity();
+          blankCodeInput.setCustomValidity("");
+          return;
+        }
+        const duplicateCodes = new Set(sales.flatMap((sale) => sale.devices.map((device) => device.code.toLocaleLowerCase())));
+        let duplicateInput = null;
+        for (let index = 0; index < codes.length; index += 1) {
+          const normalizedCode = codes[index].toLocaleLowerCase();
+          if (duplicateCodes.has(normalizedCode)) {
+            duplicateInput = codeInputs[index];
+            break;
+          }
+          duplicateCodes.add(normalizedCode);
+        }
+        if (duplicateInput) {
+          duplicateInput.setCustomValidity("Este código ya se registró en otra venta o equipo.");
+          duplicateInput.reportValidity();
+          duplicateInput.setCustomValidity("");
+          return;
+        }
+        const now = new Date();
+        const total = product.price * quantity;
+        if (!Number.isFinite(total)) {
+          notify("No se pudo calcular un total válido para esta venta.");
+          return;
+        }
+        const isFinanced = $("#sale-payment-type").value === "financed";
+        const purchaseDate = isFinanced ? $("#credit-purchase-date").value : currentDateInputValue();
+        const downPayment = isFinanced ? Math.round(Number($("#sale-down-payment").value) * 100) / 100 : total;
+        const installmentCount = isFinanced ? Number($("#sale-installments").value) : 0;
+        if (isFinanced && (!Number.isFinite(downPayment) || downPayment < 0 || downPayment > total ||
+            !Number.isInteger(installmentCount) || installmentCount < 1 || installmentCount > 60)) {
+          notify("Revisa el anticipo y elige entre 1 y 60 cuotas.");
+          return;
+        }
+        const financedBalance = Math.round((total - downPayment) * 100) / 100;
+        const installments = financedBalance > 0 ? installmentAmounts(financedBalance, installmentCount) : [];
+        let invoiceNumber;
+        const localDate = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+        do {
+          invoiceNumber = `F-${localDate}-${now.getTime().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+        } while (sales.some((item) => item.invoiceNumber === invoiceNumber));
+        const sale = {
+          id: globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          invoiceNumber,
+          date: new Date(`${purchaseDate}T12:00:00`).toISOString(),
+          customer: $("#sale-customer").value.trim(),
+          brand: product.brand,
+          model: product.model,
+          storage: product.storage || "",
+          unitPrice: product.price,
+          total,
+          financing: {
+            financed: isFinanced,
+            downPayment,
+            installmentCount: installments.length ? installmentCount : 0,
+            installmentAmount: installments.length ? installments[0] : 0,
+            paidAmount: 0,
+            payments: []
+          },
+          creditContract: isFinanced ? {
+            cedula: $("#credit-cedula").value.trim(),
+            phone: $("#credit-phone").value.trim(),
+            purchaseDate,
+            finalDate: $("#credit-final-date").value,
+            references: [
+              { name: $("#reference-one-name").value.trim(), phone: $("#reference-one-phone").value.trim() },
+              { name: $("#reference-two-name").value.trim(), phone: $("#reference-two-phone").value.trim() }
+            ],
+            consents: {
+              lateFee: $("#consent-late-fee").checked,
+              creditCheck: $("#consent-credit-check").checked,
+              deviceLock: $("#consent-device-lock").checked
+            },
+            lateFeeRate: 0.1,
+            installmentFrequency: "biweekly"
+          } : null,
+          devices: codes.map((code) => ({ code, blocked: false }))
+        };
+        try {
+          if (getSessionToken()) {
+            const savedSale = await apiRequest("/api/sales", {
+              method: "POST",
+              body: JSON.stringify({
+                ...sale,
+                productId: product.id,
+                devices: sale.devices,
+                financing: sale.financing,
+                creditContract: sale.creditContract,
+                total: sale.total,
+                unitPrice: sale.unitPrice
+              })
+            });
+            const nextProducts = products.map((item) => item.id === product.id ? { ...item, stock: item.stock - quantity } : item);
+            products = nextProducts;
+            sales = [savedSale, ...sales];
+            render();
+            closeModals();
+            notify(`Venta registrada. Factura ${savedSale.invoiceNumber}.`);
+            return;
+          }
+          const nextProducts = products.map((item) => item.id === product.id ? { ...item, stock: item.stock - quantity } : item);
+          if (saveState(nextProducts, [sale, ...sales])) {
+            render();
+            const updatedProduct = products.find((item) => item.id === product.id);
+            saleForm.reset();
+            $("#sale-id").value = product.id;
+            $("#sale-product-name").textContent = `${product.brand} ${product.model} · ${updatedProduct.stock} disponibles`;
+            $("#sale-quantity").max = updatedProduct.stock;
+            $("#sale-quantity").value = updatedProduct.stock > 0 ? 1 : "";
+            $("#sale-customer").value = "";
+            $("#sale-payment-type").value = "cash";
+            $("#sale-down-payment").value = "0";
+            $("#sale-installments").value = "12";
+            $("#credit-purchase-date").value = currentDateInputValue();
+            $("#credit-final-date").value = dateAfterMonths($("#credit-purchase-date").value, 12);
+            renderDeviceCodeInputs(1);
+            const submitButton = saleForm.querySelector('button[type="submit"]');
+            submitButton.disabled = updatedProduct.stock < 1;
+            submitButton.textContent = updatedProduct.stock > 0 ? "Registrar otra venta" : "Sin existencias";
+            updateFinancingPreview();
+            notify(`Venta registrada. Factura ${sale.invoiceNumber} disponible en el historial. La ventana sigue abierta.`);
+          }
+        } catch (error) {
+          notify(error.message || "No se pudo registrar la venta.");
+        }
+      });
+
+      paymentForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!ensurePermission("canManageFinance", "Necesitas permisos contables para registrar abonos.")) return;
+        const sale = sales.find((item) => item.id === $("#payment-sale-id").value);
+        const amount = Math.round(Number($("#payment-amount").value) * 100) / 100;
+        const balance = sale ? calculateCreditBalance(sale) : null;
+        const outstanding = balance ? balance.totalCents / 100 : 0;
+        if (!sale || !Number.isFinite(amount) || amount <= 0 || amount > outstanding) {
+          $("#payment-amount").setCustomValidity("El abono debe ser mayor que cero y no superar el saldo pendiente.");
+          $("#payment-amount").reportValidity();
+          $("#payment-amount").setCustomValidity("");
+          return;
+        }
+        try {
+          if (getSessionToken()) {
+            const response = await apiRequest("/api/payments", {
+              method: "POST",
+              body: JSON.stringify({ saleId: sale.id, amount })
+            });
+            sales = sales.map((item) => item.id === sale.id ? { ...item, financing: { ...item.financing, paidAmount: Number(item.financing.paidAmount || 0) + Number(response.payment.principalAmount || 0), payments: [...(item.financing.payments || []), response.payment] } } : item);
+            closeModals();
+            render();
+            notify(`Abono de ${money(amount)} registrado. Saldo pendiente: ${money(calculateCreditBalance(sales.find((item) => item.id === sale.id)).totalCents / 100)}.`);
+            return;
+          }
+          const lateFeeAmount = Math.min(amount, balance.lateFeeCents / 100);
+          const principalAmount = Math.min(amount - lateFeeAmount, balance.principalCents / 100);
+          const updatedFinancing = {
+            ...sale.financing,
+            paidAmount: Math.round((sale.financing.paidAmount + principalAmount) * 100) / 100,
+            payments: [...sale.financing.payments, {
+              date: new Date(`${currentDateInputValue()}T12:00:00`).toISOString(),
+              amount,
+              principalAmount,
+              lateFeeAmount
+            }]
+          };
+          const nextSales = sales.map((item) => item.id === sale.id ? { ...item, financing: updatedFinancing } : item);
+          if (saveState(products, nextSales)) {
+            closeModals();
+            render();
+            const updatedSale = { ...sale, financing: updatedFinancing };
+            notify(`Abono de ${money(amount)} registrado. Saldo pendiente: ${money(calculateCreditBalance(updatedSale).totalCents / 100)}.`);
+          }
+        } catch (error) {
+          notify(error.message || "No se pudo registrar el abono.");
+        }
+      });
+
+      $("#block-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (!ensurePermission("canManageProducts", "Inicia sesión para buscar y bloquear equipos.")) return;
+        if (!event.currentTarget.reportValidity()) return;
+        showBlockResult($("#block-code").value.trim());
+      });
+
+      function handleDeviceAction(button) {
+        if (button.dataset.action === "toggle-block") {
+          if (!ensurePermission("canManageProducts", "Inicia sesión para bloquear equipos.")) return;
+          toggleDeviceBlock(button.dataset.code);
+          return;
+        }
+        if (button.dataset.action === "print") {
+          const sale = sales.find((item) => item.id === button.dataset.id);
+          if (sale) printInvoice(sale);
+          return;
+        }
+        if (button.dataset.action === "payment") {
+          if (!ensurePermission("canManageFinance", "Inicia sesión con permisos contables para registrar abonos.")) return;
+          const sale = sales.find((item) => item.id === button.dataset.id);
+          if (sale) openPaymentModal(sale);
+          return;
+        }
+        if (button.dataset.action === "delete-sale") {
+          if (!ensurePermission("isAdmin", "Solo un administrador puede eliminar ventas.")) return;
+          deleteSale(button.dataset.id);
+        }
+      }
+
+      salesRows.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (button) handleDeviceAction(button);
+      });
+      $("#block-result").addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (button) handleDeviceAction(button);
+      });
+
+      $("#logout-button").addEventListener("click", async () => {
+        try {
+          if (getSessionToken()) await apiRequest("/api/logout", { method: "POST" });
+        } catch (error) {
+          console.error("No se pudo cerrar la sesión en el servidor:", error);
+        } finally {
+          clearCurrentSession();
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(`${STORAGE_KEY}-meta`);
+          products = [];
+          sales = [];
+          applySessionUI();
+          render();
+          notify("Sesión cerrada.");
+        }
+      });
+
+      $("#password-button").addEventListener("click", () => {
+        passwordForm.reset();
+        passwordOverlay.hidden = false;
+        $("#current-password").focus();
+      });
+
+      $("#username-button").addEventListener("click", () => {
+        usernameForm.reset();
+        const session = getCurrentSession();
+        $("#new-username").value = session?.userKey || "";
+        usernameOverlay.hidden = false;
+        $("#new-username").focus();
+      });
+
+      usernameForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!usernameForm.reportValidity()) return;
+        const username = $("#new-username").value.trim().toLowerCase();
+        try {
+          const response = await apiRequest("/api/change-username", {
+            method: "POST",
+            body: JSON.stringify({
+              username,
+              currentPassword: $("#username-current-password").value
+            })
+          });
+          setCurrentSession(response.user, getSessionToken());
+          closeModals();
+          applySessionUI();
+          notify("Nombre de usuario actualizado.");
+        } catch (error) {
+          notify(error.message || "No se pudo cambiar el nombre de usuario.");
+        } finally {
+          $("#username-current-password").value = "";
+        }
+      });
+
+      passwordForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!passwordForm.reportValidity()) return;
+        const newPassword = $("#new-password").value;
+        if (newPassword !== $("#confirm-password").value) {
+          $("#confirm-password").setCustomValidity("Las contraseñas no coinciden.");
+          $("#confirm-password").reportValidity();
+          $("#confirm-password").setCustomValidity("");
+          return;
+        }
+        try {
+          await apiRequest("/api/change-password", {
+            method: "POST",
+            body: JSON.stringify({
+              currentPassword: $("#current-password").value,
+              newPassword
+            })
+          });
+          clearCurrentSession();
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(`${STORAGE_KEY}-meta`);
+          products = [];
+          sales = [];
+          closeModals();
+          applySessionUI();
+          render();
+          notify("Contraseña cambiada. Inicia sesión con tu nueva contraseña.");
+        } catch (error) {
+          notify(error.message || "No se pudo cambiar la contraseña.");
+        } finally {
+          $("#current-password").value = "";
+          $("#new-password").value = "";
+          $("#confirm-password").value = "";
+        }
+      });
+
+      loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const username = $("#login-user").value.trim().toLowerCase();
+        const password = $("#login-password").value;
+        try {
+          const response = await apiRequest("/api/login", {
+            method: "POST",
+            body: JSON.stringify({ username, password })
+          });
+          setCurrentSession(response.user, response.token);
+          $("#login-password").value = "";
+          applySessionUI();
+          render();
+          await refreshFromServer();
+          notify(`Bienvenido, ${response.user.name}.`);
+        } catch (error) {
+          notify(error.message || "No se pudo iniciar sesión.");
+          $("#login-password").focus();
+        }
+      });
+
+      ensureQuickActions();
+      restoreSession();
+    })();
+  </script>
+</body>
+</html>

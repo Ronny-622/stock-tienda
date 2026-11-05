@@ -1,0 +1,34 @@
+{
+  "applications": [
+    {
+      "packageName": "com.tuplataforma.appclientes",
+      "installType": "FORCE_INSTALLED",
+      "defaultPermissionPolicy": "GRANT",
+      "lockTaskAllowed": true
+    }
+  ],
+  "persistentPreferredActivities": [
+    {
+      "receiverActivity": "com.tuplataforma.appclientes/.MainActivity",
+      "actions": [
+        "android.intent.action.MAIN"
+      ],
+      "categories": [
+        "android.intent.category.HOME",
+        "android.intent.category.DEFAULT"
+      ]
+    }
+  ],
+  "kioskCustomLauncherEnabled": true,
+  "kioskCustomization": {
+    "powerButtonActions": "POWER_BUTTON_AVAILABLE",
+    "systemNavigation": "NAVIGATION_DISABLED",
+    "statusBar": "NOTIFICATIONS_AND_SYSTEM_INFO_DISABLED"
+  },
+  "frpAdminEmails": [
+    "tu-correo-admin@empresa.com"
+  ],
+  "factoryResetDisabled": true,
+  "safeBootDisabled": true,
+  "debuggingFeaturesAllowed": false
+}
